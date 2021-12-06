@@ -23,11 +23,6 @@ defmodule Day01.SonarSweep do
   end
 
   defp do_count_window_increases([_head | tail] = input, count) do
-    # IO.inspect(binding(),
-    #   label: "binding() #{__MODULE__}:#{__ENV__.line} #{DateTime.utc_now()}",
-    #   limit: :infinity
-    # )
-
     if enough_input?(input) do
       count = if window_increase?(input), do: count + 1, else: count
 
