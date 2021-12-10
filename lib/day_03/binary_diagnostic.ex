@@ -3,13 +3,49 @@ defmodule Day03.BinaryDiagnostic do
 
   @input input()
 
-  # @input ["forward 5", "down 5", "forward 8", "up 3", "down 8", "forward 2"]
+  # @input [
+  #   {0, 0, 1, 0, 0},
+  #   {1, 1, 1, 1, 0},
+  #   {1, 0, 1, 1, 0},
+  #   {1, 0, 1, 1, 1},
+  #   {1, 0, 1, 0, 1},
+  #   {0, 1, 1, 1, 1},
+  #   {0, 0, 1, 1, 1},
+  #   {1, 1, 1, 0, 0},
+  #   {1, 0, 0, 0, 0},
+  #   {1, 1, 0, 0, 1},
+  #   {0, 0, 0, 1, 0},
+  #   {0, 1, 0, 1, 0}
+  # ]
 
   def diagnose do
     gamma = gamma(@input)
     epsilon = epsilon(@input)
 
     gamma * epsilon
+  end
+
+  def calculate_life_support do
+    oxygen_generator_rating = calculate_rating(@input, :gamma) |> IO.inspect()
+    co2_scrubber_rating = calculate_rating(@input, :epsilon) |> IO.inspect()
+
+    oxygen_generator_rating * co2_scrubber_rating
+  end
+
+  defp calculate_rating(input, type),
+    do: do_calculate_rating(input, 0, type)
+
+  defp do_calculate_rating(input, _index, _type) when length(input) == 1,
+    do: Enum.fetch!(input, 0) |> Tuple.to_list() |> to_decimal()
+
+  defp do_calculate_rating(input, index, type) do
+    digit = check_column(input, index, type)
+
+    new_input = Enum.filter(input, fn tuple -> elem(tuple, index) == digit end)
+
+    IO.inspect(new_input)
+
+    do_calculate_rating(new_input, index + 1, type)
   end
 
   defp gamma(input) do
@@ -28,7 +64,7 @@ defmodule Day03.BinaryDiagnostic do
     map = generate_frequencies_map(input, index)
 
     case rate_type do
-      :gamma -> return_bigger(map)
+      :gamma -> return_bigger(map) |> IO.inspect()
       :epsilon -> return_smaller(map)
     end
   end
@@ -48,7 +84,7 @@ defmodule Day03.BinaryDiagnostic do
   end
 
   defp return_smaller(frequencies) do
-    if frequencies[0] < frequencies[1], do: 0, else: 1
+    if frequencies[0] > frequencies[1], do: 1, else: 0
   end
 
   defp generate_frequencies_map(input, index) do
@@ -58,11 +94,6 @@ defmodule Day03.BinaryDiagnostic do
   end
 
   defp to_decimal(input) do
-    IO.inspect(binding(),
-      label: "binding() #{__MODULE__}:#{__ENV__.line} #{DateTime.utc_now()}",
-      limit: :infinity
-    )
-
     input
     |> Enum.join()
     |> String.to_integer(2)
